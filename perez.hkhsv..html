@@ -1,0 +1,205 @@
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Laboratorio de Ciberseguridad</title>
+
+<style>
+body {
+  font-family: Arial, sans-serif;
+  background: #101827;
+  color: white;
+  text-align: center;
+  padding: 20px;
+}
+
+h2 {
+  color: #35a7ff;
+}
+
+.seccion {
+  background: #1c2b40;
+  padding: 15px;
+  margin: 15px 0;
+  border-radius: 12px;
+}
+
+button {
+  padding: 14px;
+  margin: 7px;
+  border: none;
+  border-radius: 8px;
+  background: #1687e8;
+  color: white;
+  font-size: 15px;
+}
+
+.stop {
+  background: #d94343;
+}
+
+video {
+  width: 100%;
+  max-width: 350px;
+  background: black;
+  border-radius: 12px;
+}
+
+#resultado {
+  background: #243248;
+  padding: 15px;
+  border-radius: 10px;
+  overflow-wrap: anywhere;
+}
+</style>
+</head>
+
+<body>
+
+<h2>Laboratorio de Ciberseguridad</h2>
+
+<p>Prueba educativa de cámara y privacidad.</p>
+
+<div class="seccion">
+
+<h3>1. Control de cámara</h3>
+
+<button onclick="activarCamara('environment')">
+Cámara trasera
+</button>
+
+<button onclick="activarCamara('user')">
+Cámara frontal
+</button>
+
+<button class="stop" onclick="detenerCamara()">
+Detener cámara
+</button>
+
+<br><br>
+
+<video id="video" autoplay playsinline muted></video>
+
+</div>
+
+<div class="seccion">
+
+<h3>2. Información del navegador</h3>
+
+<button onclick="informacionDispositivo()">
+Consultar información
+</button>
+
+</div>
+
+<div class="seccion">
+
+<h3>3. Estado del laboratorio</h3>
+
+<div id="resultado">
+Laboratorio preparado. Esperando pruebas...
+</div>
+
+</div>
+
+<script>
+
+let flujo = null;
+
+function mostrar(mensaje) {
+  document.getElementById("resultado").innerHTML = mensaje;
+}
+
+// ACTIVAR CÁMARA
+
+async function activarCamara(tipo) {
+
+  detenerCamara(false);
+
+  try {
+
+    if (!navigator.mediaDevices ||
+        !navigator.mediaDevices.getUserMedia) {
+
+      throw new Error(
+        "Necesitas HTTPS o localhost para utilizar la cámara."
+      );
+
+    }
+
+    flujo = await navigator.mediaDevices.getUserMedia({
+
+      video: {
+        facingMode: { ideal: tipo }
+      },
+
+      audio: false
+
+    });
+
+    const video = document.getElementById("video");
+
+    video.srcObject = flujo;
+
+    await video.play();
+
+    mostrar("Cámara activada correctamente.");
+
+  } catch (error) {
+
+    mostrar(
+      "Error de cámara: " +
+      error.name + " - " + error.message
+    );
+
+  }
+
+}
+
+// DETENER CÁMARA
+
+function detenerCamara(mensaje = true) {
+
+  if (flujo) {
+
+    flujo.getTracks().forEach(pista => pista.stop());
+
+    flujo = null;
+
+  }
+
+  document.getElementById("video").srcObject = null;
+
+  if (mensaje) {
+
+    mostrar("Cámara detenida correctamente.");
+
+  }
+
+}
+
+// INFORMACIÓN BÁSICA
+
+function informacionDispositivo() {
+
+  mostrar(
+
+    "Navegador: " + navigator.userAgent +
+
+    "<br><br>Conexión segura: " +
+
+    (window.isSecureContext ? "Sí" : "No") +
+
+    "<br><br>Plataforma: " + navigator.platform
+
+  );
+
+}
+
+</script>
+
+</body>
+</html>
